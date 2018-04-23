@@ -299,9 +299,7 @@ module ActiveSupport
 
       # Read an entry from the cache.
       def read_entry(key, options) # :nodoc:
-        entry = with { |c| c.get(key, options) }
-        # NB Backwards data compatibility, to be removed at some point
-        entry.is_a?(ActiveSupport::Cache::Entry) ? entry.value : entry
+        with { |c| c.get(key, options) }
       rescue Dalli::DalliError => e
         log_dalli_error(e)
         instrument_error(e) if instrument_errors?
@@ -411,17 +409,7 @@ module ActiveSupport
       module LocalCacheEntryUnwrapAndRaw # :nodoc:
         protected
           def read_entry(key, options)
-            retval = super
-            if retval.is_a? ActiveSupport::Cache::Entry
-              # Must have come from LocalStore, unwrap it
-              if options[:raw]
-                retval.value.to_s
-              else
-                retval.value
-              end
-            else
-              retval
-            end
+            super
           end
       end
     end
